@@ -11,6 +11,7 @@ console.log(process.env.MONGODB_USER);
 
 app.use(bodyParser.json());
 
+mongoose.set('strictQuery',false);
 mongoose.connect(`mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@cluster0.1hkl3ks.mongodb.net/?retryWrites=true&w=majority`, 
 ).then(() => {
     console.log("Connexion à MongoDB réussie !")
