@@ -181,7 +181,7 @@ exports.updateMetier = (req, res) => {
   Metier.findOne({nom: req.body.nom}).then((metier)=> {
     if(metier) {
       return res.status(404).send({
-        message: " is already used"
+        message: "name is already used"
       })
     } else {
       Metier.findByIdAndUpdate(req.params.id, req.body).then((metiers) => {
