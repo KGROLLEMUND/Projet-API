@@ -68,7 +68,7 @@ const freelanceSchema = mongoose.Schema(
   mission: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Mission",
-      status: { type : String, enum: ["accepté", "refusé", "en attente"]}
+      status: { type : String, enum: ["accepté", "refusé", "en attente"], default : 'en attente'}
   },
   isAdmin: {
       type: Boolean,

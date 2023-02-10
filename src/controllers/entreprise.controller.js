@@ -45,7 +45,7 @@ exports.createMission = (req, res) => {
           });
         }
         res.status(200).send({
-          message: "Freelance added to mission",
+          message: "Freelance add to mission",
         });
       }
     })
@@ -56,12 +56,10 @@ exports.updateMission = (req, res) => {
   if (
     req.body.status === "in progress" ||
     req.body.status === "close" ||
-    req.body.status === undefined
-  ) {
+    req.body.status === undefined ) {
     if (
       req.body.statusCandidat.length <= 0 ||
-      req.body.statusCandidat === undefined
-    ) {
+      req.body.statusCandidat === undefined) {
       Mission.findByIdAndUpdate(req.params.id, req.body)
         .then((mission) => {
           if (mission.entrepriseCreateMission === req.userToken.id) {
@@ -72,8 +70,7 @@ exports.updateMission = (req, res) => {
             }
             if (
               mission.status === "in progress" ||
-              mission.status === "close"
-            ) {
+              mission.status === "close" ) {
               res.status(200).send({
                 message: "Title of the mission changed",
               });
@@ -200,7 +197,7 @@ function Nodemailer(EmailFreelance, EmailEntreprise) {
     text: `
       Hello, 
   
-      You have been selected to participate on this mission, 
+      You have been selected to participate at an mission, 
       Do you accept or decline this mission ?
       `,
   });

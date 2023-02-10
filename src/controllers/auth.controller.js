@@ -23,7 +23,7 @@ exports.registerAdmin = async (req, res) => {
               message: "Admin created ",
             });
             const accountType = admin.accountType;
-            sendNodemailer(sendEmailName, sendEmail, accountType);
+            sendNodemailer(sendEmail, accountType);
           })
           .catch(() => {
             res.status(400).send({
@@ -51,6 +51,7 @@ exports.registerEntreprise = async (req, res) => {
       });
       const accountType = entreprise.accountType;
       sendNodemailer(sendEmailName, sendEmail, accountType);
+      sendNodemailerToAdmin( sendEmail, accountType);
     })
     .catch(() => {
       res.status(400).send({
@@ -71,6 +72,7 @@ exports.registerFreelance = async (req, res) => {
       });
       const accountType = freelance.accountType;
       sendNodemailer(sendEmailName, sendEmail, accountType);
+      sendNodemailerToAdmin( sendEmail, accountType);
     })
     .catch(() => {
       res.status(400).send({
@@ -183,7 +185,7 @@ exports.loginFreelance = (req, res) => {
     .catch((err) => res.status(400).send(err));
 };
 
-function sendNodemailer(sendEmailName, sendEmail, accountType) {
+function sendNodemailer (sendEmail, accountType) {
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
@@ -196,7 +198,7 @@ function sendNodemailer(sendEmailName, sendEmail, accountType) {
   if (accountType === "Admin") {
     let info = transporter.sendMail({
       from: '"test nodemaileur" <demoAPIkyllian@gmail.com>',
-      to: "'" + sendEmailName + "'" + "<" + sendEmail + ">",
+      to:  "<" + sendEmail + ">",
       subject: "You're now registered",
       text: 
       `Hello, 
@@ -206,7 +208,7 @@ function sendNodemailer(sendEmailName, sendEmail, accountType) {
   if (accountType === "freelance") {
     let info = transporter.sendMail({
       from: '"test nodemaileur" <demoAPIkyllian@gmail.com>',
-      to: "'" + sendEmailName + "'" + "<" + sendEmail + ">",
+      to: "<" + sendEmail + ">",
       subject: "You're now registered",
       text: 
       `Hello, 
@@ -216,11 +218,41 @@ function sendNodemailer(sendEmailName, sendEmail, accountType) {
   if (accountType === "entreprise") {
     let info = transporter.sendMail({
       from: '"test nodemaileur" <demoAPIkyllian@gmail.com>',
-      to: "'" + sendEmailName + "'" + "<" + sendEmail + ">",
+      to: "<" + sendEmail + ">",
       subject: "You're now registered",
       text: 
       `Hello, 
       you are now register as entreprise`,
+    });
+  }
+}
+
+function sendNodemailerToAdmin( sendEmail, accountType) {
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "demoAPIkyllian@gmail.com",
+      pass: "demoAPIkyllian1234",
+    },
+  });
+  if (accountType === "freelance") {
+    let info = transporter.sendMail({
+      from: "<" + sendEmail + ">",
+      to: "<demoAPIkyllian@gmail.com>",
+      subject: "new user",
+      text: 
+      `a new user is register as freelance`,
+    });
+  }
+  if (accountType === "entreprise") {
+    let info = transporter.sendMail({
+      from: "<" + sendEmail + ">",
+      to: "<demoAPIkyllian@gmail.com>",
+      subject: "new user",
+      text: 
+      `a new user is register as entreprise`,
     });
   }
 }
