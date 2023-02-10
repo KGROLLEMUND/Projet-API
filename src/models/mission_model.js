@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const missionSchema = mongoose.Schema(
   {
+    entrepriseCreateMission: {
+        type: String,
+        required: true,
+    },
     datedebut: {
         type: Date,
         required: true,
@@ -30,18 +34,14 @@ const missionSchema = mongoose.Schema(
         minLength: 2,
     },
     metier : {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Metier",
         required: true,
-        lowercase: true,
-        maxLength:  100,
-        minLength: 2,
     },
     competence : {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Competence",
         required: true,
-        lowercase: true,
-        maxLength:  200,
-        minLength: 2,
     },
     status : {
         type: String,
@@ -49,6 +49,12 @@ const missionSchema = mongoose.Schema(
         lowercase: true,
         maxLength:  100,
         minLength: 2,
+    },
+    statusCandidat: {
+        required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Freelance",
+        status: { type : String, enum: ["accepted", "refused", "pending"]}
     }
 },
   {

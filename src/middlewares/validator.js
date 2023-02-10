@@ -16,6 +16,7 @@ exports.checkPassword = [
     .matches(/^[A-Za-z0-9 .,'!&(§è!çà)]+$/)
 ]
 
+
 exports.validation = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -25,3 +26,19 @@ exports.validation = (req, res, next) => {
   }
   next();
 }
+
+exports.checkfreelance = [
+  body("tauxjournalier").isAlphanumeric().withMessage("tauxjournalier format is not valid"),
+  body("experience").isAlphanumeric().withMessage("experience format is not valid"),
+]
+
+exports.checkentreprise = [
+  body("entrepriseName").isAscii().withMessage("name is not valid"),
+  body("entrepriseSiret").isAlphanumeric().isLength({min: 9, max: 9}).withMessage("Siret format is not valid"),
+  body("entrepriseStatus").custom((value) => {
+    if (value != "SAS" && value != "SASU" && value != "SARL" && value != "EURL") {
+      throw new Error("Company status format is not valid");
+    }
+    return true;
+  }),
+];

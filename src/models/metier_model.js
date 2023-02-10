@@ -7,6 +7,7 @@ const metierSchema = mongoose.Schema(
         type: String,
         required: true,
         lowercase: true,
+        unique: true,
         maxLength:  100,
         minLength: 2,
     }

@@ -2,52 +2,84 @@ const mongoose = require("mongoose");
 
 const entrepriseSchema = mongoose.Schema(
   {
-    nom: {
+    firstName: {
         type: String,
         required: true,
-        lowercase: true,
-        maxLength:  100,
         minLength: 2,
+        maxLength: 30,
     },
-    statusSociete: {
+    lastName: {
         type: String,
         required: true,
+        minLength: 2,
+        maxLength: 30,
+    },
+    email: {
+        type: String,
         lowercase: true,
-        maxLength:  20,
+        unique: true,
+        required: true,
+    },
+    password: {
+        type: String,
+        required: true,
+        minLength: 6,
+        maxLength: 50,
+    },
+    entrepriseName: {
+        type: String,
+        required: true,
         minLength: 1,
+        maxLength: 50,
     },
-    numeroSiret: {
+    entrepriseStatus: {
         type: String,
         required: true,
-        lowercase: true,
-        maxLength:  9,
-        minLength: 1,
+        minLength: 3,
+        maxLength: 4,
     },
-    adresse: {
+    entrepriseSiret: {
         type: String,
         required: true,
-        lowercase: true,
-        maxLength:  100,
-        minLength: 2,
+        minLength: 9,
+        maxLength: 9,
     },
-    ville: {
+    entrepriseAddress: {
         type: String,
-        required: true,
-        lowercase: true,
-        maxLength:  100,
-        minLength: 2,
+        default: "la defense",
     },
-    codePostal: {
+    entrepriseCity: {
         type: String,
-        required: true,
-        lowercase: true,
-        maxLength:  10,
-        minLength: 2,
-    },  
+        default: "Courbevoie",
+    },
+    entreprisePostal: {
+        type: Number,
+        default: 92000,
+    },
+    entrepriseTel: {
+        type: String,
+        default: "0189654723",
+    },
+    accountType: {
+        type: String,
+        default: "entreprise",
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false,
+    },
 },
   {
     timestamps: true,
   }
 );
+entrepriseSchema.pre("save", function(next) {
+    if(!this.isModified("password")){
+      return next();
+    }
+    const hashedPassword = bcrypt.hashSync(this.password, 10);
+    this.password = hashedPassword;
+    next();
+  })
 
 module.exports = mongoose.model("Entreprise", entrepriseSchema);

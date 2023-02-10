@@ -1,52 +1,226 @@
-const User = require("../models/user_model");
+const Entreprise = require("../models/entreprise_model");
+const Freelance = require("../models/freelance_model");
+const Admin = require("../models/admin_model");
 const bcrypt = require("bcrypt");
-var jwt = require('jsonwebtoken');
+var jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
-exports.register = async (req, res, next) => {
-
-  const newUser = new User({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    password: req.body.password,
-    email: req.body.email
-  });
-  
-  try {
-    const newUserToSave = await newUser.save();
-    return res.send(newUserToSave);
-  }
-
-  catch(err) {
-    next(err)
-  }
-
-}
-
-exports.login = (req, res, next) => {
-  User.findOne({ email: req.body.email })
-    .then((user) => {
-      if (!user) {
+exports.registerAdmin = async (req, res) => {
+  const sendEmailName = req.body.lastName;
+  const sendEmail = req.body.email;
+  Admin.find()
+    .then((admin) => {
+      if (admin.length === 0) {
+        const newAdmin = new Admin({
+          AdminName: "Admin",
+          AdminEmail: req.body.AdminEmail,
+          AdminPassword: req.body.AdminPassword,
+        });
+        newAdmin
+          .save()
+          .then((admin) => {
+            res.status(201).send({
+              message: "Admin created ",
+            });
+            const accountType = admin.accountType;
+            sendNodemailer(sendEmailName, sendEmail, accountType);
+          })
+          .catch(() => {
+            res.status(400).send({
+              message: "Admin already created",
+            });
+          });
+      } else {
         return res.status(404).send({
-          message:"user not found"
-        })
+          message: "An Admin already exist",
+        });
       }
-      let passwordValid = bcrypt.compareSync(req.body.password, user.password);
-      if (!passwordValid) {
+    })
+    .catch((err) => res.status(400).send(err));
+};
+
+exports.registerEntreprise = async (req, res) => {
+  const sendEmailName = req.body.lastName;
+  const sendEmail = req.body.email;
+  const newEntreprise = new Entreprise(req.body);
+  newEntreprise
+    .save()
+    .then((entreprise) => {
+      res.status(201).send({
+        message: "You are now registered.",
+      });
+      const accountType = entreprise.accountType;
+      sendNodemailer(sendEmailName, sendEmail, accountType);
+    })
+    .catch(() => {
+      res.status(400).send({
+        message: "Email is already exist",
+      });
+    });
+};
+
+exports.registerFreelance = async (req, res) => {
+  const sendEmailName = req.body.lastName;
+  const sendEmail = req.body.email;
+  const newFreelance = new Freelance(req.body);
+  newFreelance
+    .save()
+    .then((freelance) => {
+      res.status(201).send({
+        message: "You are now registered.",
+      });
+      const accountType = freelance.accountType;
+      sendNodemailer(sendEmailName, sendEmail, accountType);
+    })
+    .catch(() => {
+      res.status(400).send({
+        message: "Email is already exist",
+      });
+    });
+};
+
+exports.loginAdmin = async (req, res) => {
+  Admin.findOne({ AdminEmail: req.body.AdminEmail })
+    .then((admin) => {
+      if (!admin) {
+        return res.status(404).send({
+          message: "admin not found",
+        });
+      }
+      let verifypassword = bcrypt.compareSync(
+        req.body.AdminPassword,
+        admin.AdminPassword
+      );
+      if (!verifypassword) {
+        return res.status(401).send({
+          message: "password is not valid",
+          auth: false,
+        });
+      }
+      let userToken = jwt.sign(
+        {
+          id: admin._id,
+          isAdmin: admin.isAdmin,
+        },
+        process.env.JWT_SECRET
+      );
+      res.send({
+        message: "User conected",
+        auth: true,
+        token: userToken,
+      });
+    })
+    .catch((err) => res.status(400).send(err));
+};
+
+exports.loginEntreprise = (req, res) => {
+  Entreprise.findOne({ email: req.body.email })
+    .then((entreprise) => {
+      if (!entreprise) {
+        return res.status(404).send({
+          message: "email not found",
+        });
+      }
+      let verifypassword = bcrypt.compareSync(
+        req.body.password,
+        entreprise.password
+      );
+      if (!verifypassword) {
         return res.status(401).send({
           message: "password not valid",
-          auth: false
-        })
+          auth: false,
+        });
       }
-      let userToken = jwt.sign({
-        id: user._id,
-        isAdmin:user.isAdmin
-        },process.env.JWT_SECRET
-      )
+      let userToken = jwt.sign(
+        {
+          id: entreprise._id,
+          isAdmin: entreprise.isAdmin,
+          accountType: entreprise.accountType,
+        },
+        process.env.JWT_SECRET
+      );
       res.send({
-        message: "User logged",
+        message: "User conected",
         auth: true,
-        token:userToken
-      })
+        token: userToken,
+      });
     })
-  .catch(err=>res.Status(400).send(err))
+    .catch((err) => res.status(400).send(err));
+};
+
+exports.loginFreelance = (req, res) => {
+  Freelance.findOne({ email: req.body.email })
+    .then((freelance) => {
+      if (!freelance) {
+        return res.status(404).send({
+          message: "email not found",
+        });
+      }
+      let verifypassword = bcrypt.compareSync(
+        req.body.password,
+        freelance.password
+      );
+      if (!verifypassword) {
+        return res.status(401).send({
+          message: "password not valid",
+          auth: false,
+        });
+      }
+      let userToken = jwt.sign(
+        {
+          id: freelance._id,
+          isAdmin: freelance.isAdmin,
+          accountType: freelance.accountType,
+        },
+        process.env.JWT_SECRET
+      );
+      res.send({
+        message: "User conected",
+        auth: true,
+        token: userToken,
+      });
+    })
+    .catch((err) => res.status(400).send(err));
+};
+
+function sendNodemailer(sendEmailName, sendEmail, accountType) {
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "demoAPIkyllian@gmail.com",
+      pass: "demoAPIkyllian1234",
+    },
+  });
+  if (accountType === "Admin") {
+    let info = transporter.sendMail({
+      from: '"test nodemaileur" <demoAPIkyllian@gmail.com>',
+      to: "'" + sendEmailName + "'" + "<" + sendEmail + ">",
+      subject: "You're now registered",
+      text: 
+      `Hello, 
+      you are now register as admin`,
+    });
+  }
+  if (accountType === "freelance") {
+    let info = transporter.sendMail({
+      from: '"test nodemaileur" <demoAPIkyllian@gmail.com>',
+      to: "'" + sendEmailName + "'" + "<" + sendEmail + ">",
+      subject: "You're now registered",
+      text: 
+      `Hello, 
+      you are now register as freelance`,
+    });
+  }
+  if (accountType === "entreprise") {
+    let info = transporter.sendMail({
+      from: '"test nodemaileur" <demoAPIkyllian@gmail.com>',
+      to: "'" + sendEmailName + "'" + "<" + sendEmail + ">",
+      subject: "You're now registered",
+      text: 
+      `Hello, 
+      you are now register as entreprise`,
+    });
+  }
 }

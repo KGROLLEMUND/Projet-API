@@ -3,7 +3,7 @@ function verifyAdmin(req, res, next) {
     if (!req.userToken.isAdmin) {
       res.status(401).send({ 
         auth: false,
-        message: "non autorisé" });
+        message: "Vous êtes pas un admin" });
     } 
     next();
   }
