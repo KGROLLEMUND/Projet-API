@@ -44,7 +44,7 @@ exports.forgetPassword = (req, res) => {
                 {password : req.body.password})
                 .then(() => {
                 res.status(200).send({
-                    message: "Your password changed"
+                    message: "Your password change"
                 });
             }).catch((err) => res.status(400).send(err));
         }
