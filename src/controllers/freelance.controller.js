@@ -17,7 +17,7 @@ exports.updateProfil = (req, res) => {
         Freelance.findOne({ email: req.body.email}).then((mail) => {
             if(mail) {
                 return res.status(404).send({
-                    message: "email is already used"
+                    message: "email is already exist"
                 })
             } else {
                 Freelance.findByIdAndUpdate(req.userToken.id, req.body).then(() => {
