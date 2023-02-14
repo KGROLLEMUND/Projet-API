@@ -22,7 +22,7 @@ exports.updateProfil = (req, res) => {
             } else {
                 Freelance.findByIdAndUpdate(req.userToken.id, req.body).then(() => {
                     res.status(200).send({
-                        message: "Your profil is update"
+                        message: "Your profil update"
                     });
                 }).catch((err) => res.status(400).send(err));
             }
